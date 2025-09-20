@@ -1,13 +1,14 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 import requests
+from .models import CurrentWeather
 
 def index(request):
     return render(request, 'index.html')
 
 def api_weather(request):
     city = request.GET.get('city')
-    api_key = 'c5d7de3c0ec59626c28271fc9968a647'  # ma clé API
+    api_key = 'c5d7de3c0ec59626c28271fc9968a647'  # ma clÃ© API
 
     if not city:
         return JsonResponse({'error': 'Aucune ville fournie'}, status=400)
@@ -27,9 +28,13 @@ def api_weather(request):
         'description': data['weather'][0]['description'].capitalize(),
         'icon': data['weather'][0]['icon'],
     }
+
+    # Sauvegarde en base
+    CurrentWeather.objects.create(
+        city=result['city'],
+        temperature=result['temperature'],
+        humidity=result['humidity'],
+        wind_speed=result['wind_speed']
+    )
+
     return JsonResponse(result)
-
-
-
-
-
